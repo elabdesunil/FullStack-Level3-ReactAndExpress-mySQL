@@ -17,7 +17,8 @@ const mysqlConnection = mysql.createConnection({
   database: "employeedb",
   multipleStatements: true
 });
-//check connection is working or not
+
+//check connection is running or not
 mysqlConnection.connect(err => {
   if (!err) console.log(`DB connection succeded`);
   else
@@ -52,25 +53,40 @@ app.delete(`/employees/:id`,(req,res) =>{
   mysqlConnection.query('DELETE FROM Employee WHERE EmpID =?',
   [req.params.id],
   (err, rows, field) =>{
-    if(!err){
-      res.send(`Deleted Successfully`);
-    }
+    if(!err) res.send(`Deleted Successfully`);
     else console.log(err)
   })
 })
 
-app.post(`/employees`,(req, res)=>{
-  let newEmp = req.body;
-  let sql = 'SET @EmpID = ?; SET @Name = ?; SET @EmpCode = ?;SET @Salary = ?; \
-  CALL EmployeeAddOrEdit(@EmpID,@Name,@EmpCode,@Salary)';
+app.post('/employees', (req, res) => {
+  let emp = req.body;
+  console.log(emp)
+  emp.EmpID = 0;
+  
+  let sql = 'SET @EmpID = ?;SET @Name = ?;SET @EmpCode = ?;SET @Salary = ?; \
+  CALL EmployeeAddOrEdit(@EmpID, @Name, @EmpCode, @Salary)';
   mysqlConnection.query(
-    sql,[newEmp.EmpID,newEmp.Name, newEmp.EmpCode,newEmp.Salary],
-    (err, rows, field)=>{
-      if(!err) res.send(`success`);
-      else console.log(err);
+    sql, [emp.EmpID, emp.Name, emp.EmpCode, emp.Salary],
+    (err, rows, field) => {
+      if (!err) res.send(emp);
+      else console.log(err)
     }
   )
 })
+
+// app.post(`/employees`,(req, res)=>{
+//   let newEmp = req.body;
+//   let sql = 'SET @EmpID = ?; SET @Name = ?; SET @EmpCode = ?;SET @Salary = ?; \
+//   CALL EmployeeAddOrEdit(@EmpID,@Name,@EmpCode,@Salary);';
+//   mysqlConnection.query(
+//     sql,[newEmp.EmpID,newEmp.Name, newEmp.EmpCode,newEmp.Salary],
+//     (err, rows, field)=>{
+//       if(!err) res.send(rows);
+//       else console.log(err);
+//     }
+//   )
+// })
+
 
 //Server
 const port = 4000;

@@ -11,7 +11,7 @@ class Students extends Component {
 
   async componentDidMount() {
     try {
-      const res = await fetch(`/api/students`);
+      const res = await fetch(`/employees`);
       const data = await res.json();
       this.setState({
         students: data,
@@ -26,7 +26,7 @@ class Students extends Component {
     return this.state.isLoaded ? (
       <ol>
         {this.state.students.map((el, index) => {
-          return <li key={index}>{el.firstName}</li>;
+          return <li key={index}>{el.Name}</li>;
         })}
       </ol>
     ) : (
