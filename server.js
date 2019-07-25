@@ -31,7 +31,7 @@ app.get(`/employees`,(req,res) =>{
   mysqlConnection.query('SELECT * FROM Employee', (err, rows, field) =>{
     if(!err){
       res.send(rows);
-      console.log(rows);
+      //console.log(rows);
     }
     else console.log(err)
   })
@@ -48,16 +48,16 @@ app.get(`/employees/:id`,(req,res) =>{
     else console.log(err)
   })
 })
-
+//Delete an item by argument
 app.delete(`/employees/:id`,(req,res) =>{
   mysqlConnection.query('DELETE FROM Employee WHERE EmpID =?',
   [req.params.id],
   (err, rows, field) =>{
-    if(!err) res.send(`Deleted Successfully`);
+    if(!err) res.send('Deleted successfully');
     else console.log(err)
   })
 })
-
+//Add an new item without input EmpId
 app.post('/employees', (req, res) => {
   let emp = req.body;
   console.log(emp)
@@ -73,19 +73,22 @@ app.post('/employees', (req, res) => {
     }
   )
 })
+//Update an item by EmpID.
+app.put('/employees', (req, res) => {
+  let emp = req.body;
+  
+  let sql = 'SET @EmpID = ?;SET @Name = ?;SET @EmpCode = ?;SET @Salary = ?; \
+  CALL EmployeeAddOrEdit(@EmpID, @Name, @EmpCode, @Salary)';
+  mysqlConnection.query(
+    sql, [emp.EmpID, emp.Name, emp.EmpCode, emp.Salary],
+    (err, rows, field) => {
+      if (!err) res.send('Updated successfully');
+      else console.log(err)
+    }
+  )
+})
 
-// app.post(`/employees`,(req, res)=>{
-//   let newEmp = req.body;
-//   let sql = 'SET @EmpID = ?; SET @Name = ?; SET @EmpCode = ?;SET @Salary = ?; \
-//   CALL EmployeeAddOrEdit(@EmpID,@Name,@EmpCode,@Salary);';
-//   mysqlConnection.query(
-//     sql,[newEmp.EmpID,newEmp.Name, newEmp.EmpCode,newEmp.Salary],
-//     (err, rows, field)=>{
-//       if(!err) res.send(rows);
-//       else console.log(err);
-//     }
-//   )
-// })
+
 
 
 //Server

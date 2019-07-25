@@ -13,6 +13,7 @@ class Students extends Component {
     try {
       const res = await fetch(`/employees`);
       const data = await res.json();
+      console.log(data)
       this.setState({
         students: data,
         isLoaded: true
@@ -22,13 +23,31 @@ class Students extends Component {
     }
   }
 
-  render() {
+  render(){
     return this.state.isLoaded ? (
-      <ol>
-        {this.state.students.map((el, index) => {
-          return <li key={index}>{el.Name}</li>;
+        <table>
+          <tbody>
+          <tr>
+            <th>EmpId</th>
+            <th>Name</th>
+            <th>EmpCode</th>
+            <th>Salary</th>
+            <th>Delete</th>
+          </tr>
+          {this.state.students.map((el, index) => {
+          return (
+          <tr key = {index}>
+                <th>{el.EmpID}</th>
+                <th>{el.Name}</th>
+                <th>{el.EmpCode}</th>
+                <th>{el.Salary}</th>
+                <th><button type = 'button'>Delete</button></th>
+          </tr>
+          
+          )
         })}
-      </ol>
+        </tbody>
+          </table>
     ) : (
       <div>Loading...</div>
     );

@@ -1,14 +1,14 @@
 import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import Students from "./Students.js";
+import Employee from "./Employee/Employee";
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <Students />
+        <Employee />
         <a
           className="App-link"
           href="https://reactjs.org"
