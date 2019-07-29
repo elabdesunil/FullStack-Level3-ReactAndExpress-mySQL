@@ -16,7 +16,7 @@ class Students extends Component {
       console.log(data)
       this.setState({
         students: data,
-        isLoaded: true
+        isLoaded: true,
       });
     } catch (e) {
       console.log(e);

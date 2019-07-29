@@ -9,7 +9,8 @@ class Employee extends Component{
           EmpCode:'',
           Salary:'',
           employees: [],
-          isLoaded: false
+          isLoaded: false,
+          pressArr :[],
         };
       }
 
@@ -18,10 +19,13 @@ class Employee extends Component{
         try{
             //axios build in json()
             const res = await axios.get(`/employees`);
-            console.log(res.data);
+            //console.log(res.data);
+            let arr = new Array(res.data.length).fill(false);
+            //console.log(pressArr)
             this.setState(
                 {
                     employees:res.data,
+                    pressArr:arr,
                     isLoaded:true,
                 }  
             )
@@ -42,6 +46,13 @@ class Employee extends Component{
         }catch(err){
             console.log(`Delete action failed`)
         }
+    }
+
+    editEmployee =(index) =>{
+        let value = !this.state.pressArr[index]
+        this.setState({
+            pressArr:[...this.state.pressArr.slice(0, index), value, ...this.state.pressArr.slice(index + 1)]
+        })
     }
 
     handleChange = event => {
@@ -77,6 +88,7 @@ class Employee extends Component{
 
 
     render(){
+        console.log(this.state.pressArr)
         return this.state.isLoaded ? (
             <div>
             <table>
@@ -91,14 +103,27 @@ class Employee extends Component{
               </tr>
               {this.state.employees.map((el, index) => {
               return (
-              <tr key = {index}>
-                    <th>{el.EmpID}</th>
-                    <th>{el.Name}</th>
-                    <th>{el.EmpCode}</th>
-                    <th>{el.Salary}</th>
-                    <th><button type = 'button' onClick = {() => this.deleteEmployee(el.EmpID)}>Delete</button></th>
-                    <th><button type = 'button'>Edit</button></th>
-              </tr>
+                    this.state.pressArr[index]
+                    ?
+                    <tr key = {index}>
+                        <th>{el.EmpID}</th>
+                        <th><input value = {el.Name}/></th>
+                        <th><input value = {el.EmpCode}/></th>
+                        <th><input value = {el.Salary}/></th>
+                        <th><button type = 'button' disabled >Delete</button></th>
+                        <th><button type = 'button' onClick={()=>this.editEmployee(index)}>Done</button></th>
+                    </tr>
+                    :
+                    (
+                    <tr key = {index}>
+                        <th>{el.EmpID}</th>
+                        <th>{el.Name}</th>
+                        <th>{el.EmpCode}</th>
+                        <th>{el.Salary}</th>
+                        <th><button type = 'button' onClick = {() => this.deleteEmployee(el.EmpID)}>Delete</button></th>
+                        <th><button type = 'button' onClick={()=>this.editEmployee(index)}>Edit</button></th>
+                    </tr>
+                    )  
               )
             })}
             </tbody>
