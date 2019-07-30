@@ -5,12 +5,14 @@ class Employee extends Component{
     constructor() {
         super();
         this.state = {
+          EmpID: 0,
           Name:'',
           EmpCode:'',
           Salary:'',
           employees: [],
-          isLoaded: false,
           pressArr :[],
+          isEditing:false,
+          isLoaded: false,
         };
       }
 
@@ -33,6 +35,54 @@ class Employee extends Component{
             console.log(`Got error when fetching data,the error is ${err}`)
         }
     }
+
+    editEmployee = async(index, EmpID) =>{
+        if(this.state.isEditing){
+            const {EmpCode, Salary, Name} = this.state;
+            console.log(EmpID, EmpCode,Salary, Name)
+            try{
+                await axios.put(`/employees`,{
+                    EmpID:EmpID,
+                    EmpCode:EmpCode,
+                    Salary:Salary,
+                    Name:Name,
+                });
+                const res = await axios.get(`/employees`);
+                let value = !this.state.pressArr[index]
+                this.setState(
+                    {
+                        employees:res.data,
+                        isEditing: false,
+                        pressArr:[...this.state.pressArr.slice(0, index), value, ...this.state.pressArr.slice(index + 1)],
+                        EmpID:0,
+                        Name:'',
+                        EmpCode:'',
+                        Salary:'',
+                    }  
+                )
+            }catch(err){
+                console.log(`Add action failed`)
+            }
+        }
+        else{
+            let value = !this.state.pressArr[index]
+            this.setState({
+                pressArr:[...this.state.pressArr.slice(0, index), value, ...this.state.pressArr.slice(index + 1)],
+                isEditing: true,
+                Name:'',
+                EmpCode:'',
+                Salary:'',
+            })
+        }
+    }
+
+    editCurrentTask = (event) =>{
+        console.log(event.target.name, event.target.value)
+        this.setState({
+            [event.target.name]: event.target.value
+        })
+    }
+
     //async deleteEmployee(EmpID){}
     deleteEmployee = async(EmpID) =>{
         try{
@@ -47,20 +97,6 @@ class Employee extends Component{
             console.log(`Delete action failed`)
         }
     }
-
-    editEmployee =(index) =>{
-        let value = !this.state.pressArr[index]
-        this.setState({
-            pressArr:[...this.state.pressArr.slice(0, index), value, ...this.state.pressArr.slice(index + 1)]
-        })
-    }
-
-    handleChange = event => {
-        console.log(event.target.name, event.target.value)
-        this.setState({
-            [event.target.name]: event.target.value
-        });
-    };
 
     addEmployee = async(event) =>{
         event.preventDefault();
@@ -85,10 +121,17 @@ class Employee extends Component{
         }
     }
 
+    handleChangeAtAdd = event => {
+        console.log(event.target.name, event.target.value)
+        this.setState({
+            [event.target.name]: event.target.value
+        });
+    };
+
 
 
     render(){
-        console.log(this.state.pressArr)
+        //console.log(this.state.Name)
         return this.state.isLoaded ? (
             <div>
             <table>
@@ -103,16 +146,54 @@ class Employee extends Component{
               </tr>
               {this.state.employees.map((el, index) => {
               return (
-                    this.state.pressArr[index]
+                    this.state.isEditing
                     ?
-                    <tr key = {index}>
-                        <th>{el.EmpID}</th>
-                        <th><input value = {el.Name}/></th>
-                        <th><input value = {el.EmpCode}/></th>
-                        <th><input value = {el.Salary}/></th>
-                        <th><button type = 'button' disabled >Delete</button></th>
-                        <th><button type = 'button' onClick={()=>this.editEmployee(index)}>Done</button></th>
-                    </tr>
+                    (
+                        this.state.pressArr[index]
+                        ?
+                        (
+                            <tr key = {index}>
+                            <th>{el.EmpID}</th>
+                            <th>
+                                <input
+                                type="text"
+                                defaultValue={el.Name}
+                                name = 'Name'
+                                onChange={e => this.editCurrentTask(e)}
+                            />
+                            </th>
+                            <th>
+                                <input
+                                type="text"
+                                defaultValue={el.EmpCode}
+                                name = 'EmpCode'
+                                onChange={e => this.editCurrentTask(e)}
+                            />
+                            </th>
+                            <th>
+                                <input
+                                type="text"
+                                defaultValue={el.Salary}
+                                name = 'Salary'
+                                onChange={e => this.editCurrentTask(e)}
+                            />
+                            </th>
+                            <th><button type = 'button' disabled >Delete</button></th>
+                            <th><button type = 'button' onClick={()=>this.editEmployee(index,el.EmpID)}>Done</button></th>
+                            </tr>
+                        )
+                        :
+                        (
+                            <tr key = {index}>
+                            <th>{el.EmpID}</th>
+                            <th>{el.Name}</th>
+                            <th>{el.EmpCode}</th>
+                            <th>{el.Salary}</th>
+                            <th><button type = 'button' disabled >Delete</button></th>
+                            <th><button type = 'button' disabled >Edit</button></th>
+                            </tr>
+                        )
+                    )
                     :
                     (
                     <tr key = {index}>
@@ -121,7 +202,7 @@ class Employee extends Component{
                         <th>{el.EmpCode}</th>
                         <th>{el.Salary}</th>
                         <th><button type = 'button' onClick = {() => this.deleteEmployee(el.EmpID)}>Delete</button></th>
-                        <th><button type = 'button' onClick={()=>this.editEmployee(index)}>Edit</button></th>
+                        <th><button type = 'button' onClick={()=>this.editEmployee(index,el.EmpID)}>Edit</button></th>
                     </tr>
                     )  
               )
@@ -135,7 +216,7 @@ class Employee extends Component{
                     name="Name"
                     placeholder="Input Name"
                     value = {this.state.Name}
-                    onChange = {this.handleChange}
+                    onChange = {this.handleChangeAtAdd}
                     />
                     EmpCode:
                     <input
@@ -143,7 +224,7 @@ class Employee extends Component{
                     name="EmpCode"
                     placeholder="Input EmpCode"
                     value = {this.state.EmpCode}
-                    onChange = {this.handleChange}
+                    onChange = {this.handleChangeAtAdd}
                     />
                     Salary:
                     <input
@@ -151,7 +232,7 @@ class Employee extends Component{
                     name="Salary"
                     placeholder="Input Salary"
                     value = {this.state.Salary}
-                    onChange = {this.handleChange}
+                    onChange = {this.handleChangeAtAdd}
                     />
                 <button type="submit">submit</button>
                 </form>
