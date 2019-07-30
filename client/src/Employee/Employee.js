@@ -36,10 +36,12 @@ class Employee extends Component{
         }
     }
 
-    editEmployee = async(index, EmpID) =>{
+    editEmployee = async(index, EmpID,name,empCode,salary) =>{
         if(this.state.isEditing){
-            const {EmpCode, Salary, Name} = this.state;
-            console.log(EmpID, EmpCode,Salary, Name)
+            let {EmpCode, Salary, Name} = this.state;
+            if(EmpCode === '') EmpCode = empCode;
+            if(Name === '') Name = name;
+            if(Salary === '') Salary = salary;
             try{
                 await axios.put(`/employees`,{
                     EmpID:EmpID,
@@ -179,7 +181,7 @@ class Employee extends Component{
                             />
                             </th>
                             <th><button type = 'button' disabled >Delete</button></th>
-                            <th><button type = 'button' onClick={()=>this.editEmployee(index,el.EmpID)}>Done</button></th>
+                            <th><button type = 'button' onClick={()=>this.editEmployee(index,el.EmpID,el.Name, el.EmpCode, el.Salary)}>Done</button></th>
                             </tr>
                         )
                         :
